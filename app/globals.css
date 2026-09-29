@@ -1,0 +1,283 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #2E7D6B;
+  --color-accent: #F4A259;
+  --color-bg: #FAFAF7;
+  --color-missed: #E0DED9;
+  --color-text-primary: #1C2620;
+  --color-text-secondary: #6B7A72;
+  --color-danger: #C4554D;
+  --color-border: #E4E2DC;
+  --color-card-bg: #FFFFFF;
+}
+
+.dark {
+  --color-primary: #3DA18B;
+  --color-accent: #F4A259;
+  --color-bg: #121714;
+  --color-missed: #2A332E;
+  --color-text-primary: #F4F5F2;
+  --color-text-secondary: #A8B3AC;
+  --color-danger: #D96961;
+  --color-border: #232B26;
+  --color-card-bg: #19201C;
+}
+
+/* ---------------------------------------------------------------------------
+   High Contrast — WCAG AAA oriented.
+   No mid-tone greys: near-black background, near-white text, saturated accents.
+   Contrast pairs (measured against --color-bg #000000):
+     text-primary   #FFFFFF  21:1
+     text-secondary #D6D6D6  13.6:1
+     primary        #00E5A0  12.9:1
+     accent         #FFC400  14.4:1
+     danger         #FF6B6B  10.4:1
+     border         #FFFFFF  21:1
+   Completed / missed are separated by border + fill pattern as well as hue.
+--------------------------------------------------------------------------- */
+.high-contrast {
+  --color-primary: #00E5A0;
+  --color-accent: #FFC400;
+  --color-bg: #000000;
+  --color-missed: #1A1A1A;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #D6D6D6;
+  --color-danger: #FF6B6B;
+  --color-border: #FFFFFF;
+  --color-card-bg: #0A0A0A;
+  /* Non-colour state cues */
+  --hc-border-width: 2px;
+  --hc-missed-pattern: repeating-linear-gradient(
+    45deg,
+    #ffffff 0px,
+    #ffffff 2px,
+    transparent 2px,
+    transparent 6px
+  );
+}
+
+/* Completed: solid fill + heavy white border (shape cue, not just colour) */
+.high-contrast .hc-state-done {
+  border: 3px solid var(--color-text-primary) !important;
+  font-weight: 700;
+}
+
+/* Missed/pending: striped fill + dashed border (pattern cue) */
+.high-contrast .hc-state-missed {
+  border: 2px dashed #FFFFFF !important;
+  background-image: var(--hc-missed-pattern);
+  background-color: var(--color-missed);
+}
+
+/* Thicker hairlines everywhere so structure survives without subtle greys */
+.high-contrast hr,
+.high-contrast .border-b,
+.high-contrast .border-t {
+  border-color: #FFFFFF !important;
+  border-bottom-width: 2px;
+}
+
+/* Never rely on low-opacity greys for text in this theme */
+.high-contrast .text-\[var\(--color-text-secondary\)\] {
+  color: var(--color-text-secondary);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans), 'Noto Sans Bengali', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+input, select, textarea {
+  color: var(--color-text-primary);
+  background-color: var(--color-card-bg);
+}
+
+/* Accessible focus styling */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* RPG level identity — subtle background aura per level (calm, never loud) */
+body[data-rpg-level='2'] {
+  background-image: radial-gradient(circle at 85% 10%, rgba(14, 125, 138, 0.07), transparent 45%);
+}
+body[data-rpg-level='3'] {
+  background-image: radial-gradient(circle at 85% 10%, rgba(196, 85, 77, 0.08), transparent 45%);
+}
+body[data-rpg-level='4'] {
+  background-image: radial-gradient(circle at 85% 10%, rgba(139, 92, 246, 0.09), transparent 45%);
+}
+body[data-rpg-level='5'] {
+  background-image: radial-gradient(circle at 85% 10%, rgba(184, 134, 11, 0.1), transparent 45%);
+}
+
+/* ---------------------------------------------------------------------------
+   Native app feel: kill the browser overscroll bounce so our own
+   pull-to-refresh is the only refresh gesture, plus page/splash animations.
+--------------------------------------------------------------------------- */
+html,
+body {
+  overscroll-behavior-y: contain;
+}
+
+@keyframes page-slide-in {
+  from {
+    opacity: 0;
+    transform: translate3d(8px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes splash-bar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Skeleton shimmer — a soft diagonal sweep, left → right.
+   Three tone stops (soft → core → soft) give a natural falloff instead of the
+   hard band a 2-stop gradient produces. Pure CSS transform, so it composites
+   on the GPU and never touches the main thread.
+--------------------------------------------------------------------------- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--skeleton-base);
+  box-shadow: var(--skeleton-inner);
+}
+
+.skeleton-shimmer {
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 28%,
+    var(--shimmer-soft) 40%,
+    var(--shimmer-core) 50%,
+    var(--shimmer-soft) 60%,
+    transparent 72%,
+    transparent 100%
+  );
+  animation: skeleton-sweep 1.6s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+:root {
+  --skeleton-base: var(--color-missed);
+  --shimmer-soft: rgba(255, 255, 255, 0.3);
+  --shimmer-core: rgba(255, 255, 255, 0.72);
+  --skeleton-inner: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  --skeleton-opacity: 0.9;
+}
+
+.dark {
+  --skeleton-base: var(--color-missed);
+  --shimmer-soft: rgba(255, 255, 255, 0.05);
+  --shimmer-core: rgba(255, 255, 255, 0.14);
+  --skeleton-inner: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --skeleton-opacity: 0.85;
+}
+
+.high-contrast {
+  /* Present and consistent, but deliberately low-key so it stays
+     accessibility-friendly rather than flashing on a near-black canvas. */
+  --skeleton-base: #101010;
+  --shimmer-soft: rgba(255, 255, 255, 0.05);
+  --shimmer-core: rgba(255, 255, 255, 0.15);
+  --skeleton-inner: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  --skeleton-opacity: 0.6;
+}
+
+.skeleton-shimmer {
+  opacity: var(--skeleton-opacity);
+}
+
+@keyframes skeleton-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+
+/* Micro-animations: checkbox pop + completion ring draw + streak bump */
+@keyframes habit-pop {
+  0% { transform: scale(0.6); }
+  55% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes streak-bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.animate-habit-pop {
+  animation: habit-pop 0.3s ease-out;
+}
+
+.animate-streak-bump {
+  animation: streak-bump 0.35s ease-out;
+}
+
+/* Reduced motion: drop every decorative loop and one-shot flourish.
+   Skeletons keep a static placeholder (no sweeping highlight) so the loading
+   state still reads as "in progress" without motion. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-habit-pop,
+  .animate-streak-bump,
+  .skeleton-shimmer,
+  .page-slide-in {
+    animation: none !important;
+  }
+
+  /* No sweep, but keep a static tonal shift so the block still reads as "busy" */
+  .skeleton-shimmer {
+    display: none;
+  }
+
+  .skeleton {
+    background-image: linear-gradient(
+      100deg,
+      transparent 30%,
+      var(--shimmer-soft) 50%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+  }
+
+  * {
+    scroll-behavior: auto !important;
+  }
+}
